@@ -162,9 +162,84 @@
         "className": "",
         "x": 980,
         "y": 240,
+        "wires": []
+    },
+    {
+        "id": "e9f05c7e70cb58ab",
+        "type": "mqtt in",
+        "z": "983aca1b753bdb66",
+        "name": "MQTT Lixeira",
+        "topic": "resposta/volume",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "9d5f4796e819aa41",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "x": 140,
+        "y": 80,
         "wires": [
-            []
+            [
+                "8a750a42709792cb"
+            ]
         ]
+    },
+    {
+        "id": "8a750a42709792cb",
+        "type": "function",
+        "z": "983aca1b753bdb66",
+        "name": "Parse MQTT Lixeira",
+        "func": "const payloadStr = msg.payload;\nconst regex = /ID:\\s*(\\w+),\\s*Distancia:\\s*([\\d.]+)\\s*cm,\\s*Status:\\s*([^,]+),\\s*Data\\/Hora:\\s*(.+)/;\nconst match = payloadStr.match(regex);\nif (match) {\n    msg.payload = {\n        id: match[1],\n        distancia_cm: parseFloat(match[2]),\n        status: match[3],\n        data_hora: match[4]\n    };\n} else {\n    msg.payload = { error: \"Formato inválido\", original: payloadStr };\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 80,
+        "wires": [
+            [
+                "d40b877ba6839e54"
+            ]
+        ]
+    },
+    {
+        "id": "d40b877ba6839e54",
+        "type": "debug",
+        "z": "983aca1b753bdb66",
+        "name": "Debug MQTT",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "9d5f4796e819aa41",
+        "type": "mqtt-broker",
+        "name": "broker.hivemq.com",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": false,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
     },
     {
         "id": "abf82d7d.3c0a7",
