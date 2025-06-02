@@ -25,7 +25,6 @@ node-red
 ```bash
 .\start.bat
 .\stop.bat
-node-red
 ```
 
 ---
@@ -93,7 +92,6 @@ Após iniciar o container, acesse:
 ---
 
 ## 🛠️ Tecnologias Utilizadas
-
 - Node-RED
 - Node-RED Dashboard
 - MQTT (via Mosquitto)
