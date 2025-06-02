@@ -7,164 +7,6 @@
         "info": ""
     },
     {
-        "id": "0fa212a3a883af46",
-        "type": "inject",
-        "z": "983aca1b753bdb66",
-        "name": "Simular Volume Aleatório",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "5",
-        "crontab": "",
-        "once": true,
-        "onceDelay": "2",
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 120,
-        "y": 400,
-        "wires": [
-            [
-                "e8d2f545a4764c8b"
-            ]
-        ]
-    },
-    {
-        "id": "e8d2f545a4764c8b",
-        "type": "function",
-        "z": "983aca1b753bdb66",
-        "name": "Gerar Volume 0-100",
-        "func": "msg.payload = Math.round(Math.random() * 100);\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 340,
-        "y": 220,
-        "wires": [
-            [
-                "d9ea9bb597a0d6b9",
-                "b9b957078a4fa511",
-                "9fae72086c47c7a2"
-            ]
-        ]
-    },
-    {
-        "id": "d9ea9bb597a0d6b9",
-        "type": "ui_gauge",
-        "z": "983aca1b753bdb66",
-        "name": "Volume da Lixeira",
-        "group": "abf82d7d.3c0a7",
-        "order": 1,
-        "width": "6",
-        "height": "6",
-        "gtype": "donut",
-        "title": "Volume (%)",
-        "label": "%",
-        "format": "{{value}}",
-        "min": 0,
-        "max": 100,
-        "colors": [
-            "#00b500",
-            "#e6e600",
-            "#ca3838"
-        ],
-        "seg1": 50,
-        "seg2": 80,
-        "diff": false,
-        "className": "",
-        "x": 1030,
-        "y": 60,
-        "wires": []
-    },
-    {
-        "id": "b9b957078a4fa511",
-        "type": "function",
-        "z": "983aca1b753bdb66",
-        "name": "Verificar Status",
-        "func": "if (msg.payload >= 80) {\n    msg.status = \"Precisa Esvaziar!\";\n    msg.color = \"red\";\n} else {\n    msg.status = \"OK\";\n    msg.color = \"green\";\n}\nreturn msg;",
-        "outputs": 1,
-        "timeout": "",
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 720,
-        "y": 300,
-        "wires": [
-            [
-                "f7b222af7d3fa350"
-            ]
-        ]
-    },
-    {
-        "id": "f7b222af7d3fa350",
-        "type": "ui_text",
-        "z": "983aca1b753bdb66",
-        "name": "Status da Lixeira",
-        "group": "abf82d7d.3c0a7",
-        "order": 2,
-        "width": "6",
-        "height": "2",
-        "label": "Status",
-        "format": "<font color={{msg.color}}><b>{{msg.status}}</b></font>",
-        "layout": "row-spread",
-        "className": "",
-        "style": false,
-        "font": "",
-        "fontSize": "",
-        "color": "#000000",
-        "x": 1070,
-        "y": 360,
-        "wires": []
-    },
-    {
-        "id": "9fae72086c47c7a2",
-        "type": "ui_chart",
-        "z": "983aca1b753bdb66",
-        "name": "Histórico de Volume",
-        "group": "abf82d7d.3c0a7",
-        "order": 3,
-        "width": "6",
-        "height": "4",
-        "label": "Volume ao Longo do Tempo",
-        "chartType": "line",
-        "legend": "false",
-        "xformat": "HH:mm:ss",
-        "interpolate": "linear",
-        "nodata": "",
-        "dot": false,
-        "ymin": "0",
-        "ymax": "100",
-        "removeOlder": "5",
-        "removeOlderPoints": "",
-        "removeOlderUnit": "60",
-        "cutout": 0,
-        "useOneColor": false,
-        "useUTC": false,
-        "colors": [
-            "#1f77b4",
-            "#aec7e8",
-            "#ff7f0e",
-            "#2ca02c",
-            "#98df8a",
-            "#000000",
-            "#000000",
-            "#000000",
-            "#000000"
-        ],
-        "outputs": 1,
-        "useDifferentColor": false,
-        "className": "",
-        "x": 980,
-        "y": 240,
-        "wires": []
-    },
-    {
         "id": "e9f05c7e70cb58ab",
         "type": "mqtt in",
         "z": "983aca1b753bdb66",
@@ -180,7 +22,8 @@
         "y": 80,
         "wires": [
             [
-                "8a750a42709792cb"
+                "8a750a42709792cb",
+                "d40b877ba6839e54"
             ]
         ]
     },
@@ -189,7 +32,7 @@
         "type": "function",
         "z": "983aca1b753bdb66",
         "name": "Parse MQTT Lixeira",
-        "func": "const payloadStr = msg.payload;\nconst regex = /ID:\\s*(\\w+),\\s*Distancia:\\s*([\\d.]+)\\s*cm,\\s*Status:\\s*([^,]+),\\s*Data\\/Hora:\\s*(.+)/;\nconst match = payloadStr.match(regex);\nif (match) {\n    msg.payload = {\n        id: match[1],\n        distancia_cm: parseFloat(match[2]),\n        status: match[3],\n        data_hora: match[4]\n    };\n} else {\n    msg.payload = { error: \"Formato inválido\", original: payloadStr };\n}\nreturn msg;",
+        "func": "// Verifica se o payload já é um objeto JSON\nif (typeof msg.payload === 'object') {\n    return msg;\n}\n\n// Caso contrário, tenta fazer o parsing do formato string\ntry {\n    const payloadStr = msg.payload.toString();\n    const regex = /ID:\\s*(\\w+),\\s*Distancia:\\s*([\\d.]+)\\s*cm,\\s*Status:\\s*([^,]+),\\s*Data\\/Hora:\\s*(.+)/;\n    const match = payloadStr.match(regex);\n    \n    if (match) {\n        msg.payload = {\n            id: match[1],\n            distancia_cm: parseFloat(match[2]),\n            status: match[3],\n            data_hora: match[4]\n        };\n    } else {\n        msg.payload = { error: \"Formato inválido\", original: payloadStr };\n    }\n} catch (e) {\n    msg.payload = { error: \"Erro no parsing\", exception: e.message };\n}\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -199,9 +42,113 @@
         "y": 80,
         "wires": [
             [
-                "d40b877ba6839e54"
+                "c2b712df5c1f1e1e"
             ]
         ]
+    },
+    {
+        "id": "c2b712df5c1f1e1e",
+        "type": "function",
+        "z": "983aca1b753bdb66",
+        "name": "Calcular Percentual",
+        "func": "const distanciaMax = 36;\nlet distancia = parseFloat(msg.payload.distancia_cm);\n\nif (isNaN(distancia)) {\n    return null;\n}\n\nif (distancia > distanciaMax) distancia = distanciaMax;\nif (distancia < 0) distancia = 0;\n\nconst percentual = ((distanciaMax - distancia) / distanciaMax) * 100;\n\nmsg.payload.percentual = Math.round(percentual);\nmsg.payload.distanciaMax = distanciaMax;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 140,
+        "wires": [
+            [
+                "7f5d8f7b44e9b6cd",
+                "b77be09c20e18264",
+                "d40b877ba6839e54",
+                "a1b2c3d4e5f6g7h8"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f6g7h8",
+        "type": "function",
+        "z": "983aca1b753bdb66",
+        "name": "Armazenar Histórico",
+        "func": "// Cria o contexto se não existir\ncontext.historico = context.historico || [];\n\n// Adiciona a nova mensagem ao histórico\ncontext.historico.unshift({\n    data_hora: msg.payload.data_hora,\n    percentual: msg.payload.percentual,\n    distancia_cm: msg.payload.distancia_cm,\n    status: msg.payload.status\n});\n\n// Mantém apenas as últimas 10 mensagens\ncontext.historico = context.historico.slice(0, 10);\n\n// Prepara a saída para o UI Template\nmsg.payload = {\n    historico: context.historico\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 260,
+        "wires": [
+            [
+                "i9j8k7l6m5n4o3p2"
+            ]
+        ]
+    },
+    {
+        "id": "i9j8k7l6m5n4o3p2",
+        "type": "ui_template",
+        "z": "983aca1b753bdb66",
+        "group": "abf82d7d.3c0a7",
+        "name": "Histórico Lixeira",
+        "order": 3,
+        "width": "6",
+        "height": "4",
+        "format": "<div style=\"font-family: Arial, sans-serif;\">\n  <h3>Últimas Leituras</h3>\n  <div class=\"ui-accordion\">\n    <div ng-repeat=\"item in msg.payload.historico\" class=\"ui-accordion-item\">\n      <div class=\"ui-accordion-header\" ng-click=\"expanded = !expanded\">\n        {{item.data_hora}} - {{item.percentual}}%\n      </div>\n      <div class=\"ui-accordion-content\" ng-show=\"expanded\">\n        <p><strong>Status:</strong> {{item.status}}</p>\n        <p><strong>Distância:</strong> {{item.distancia_cm}} cm</p>\n        <p><strong>Percentual:</strong> {{item.percentual}}%</p>\n      </div>\n    </div>\n  </div>\n</div>\n\n<style>\n.ui-accordion-item {\n  border: 1px solid #ddd;\n  margin-bottom: 5px;\n  border-radius: 4px;\n}\n.ui-accordion-header {\n  padding: 10px;\n  background-color: #f5f5f5;\n  cursor: pointer;\n}\n.ui-accordion-header:hover {\n  background-color: #e9e9e9;\n}\n.ui-accordion-content {\n  padding: 10px;\n  background-color: white;\n}\n</style>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1140,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7f5d8f7b44e9b6cd",
+        "type": "ui_gauge",
+        "z": "983aca1b753bdb66",
+        "name": "Ocupação da Lixeira",
+        "group": "abf82d7d.3c0a7",
+        "order": 1,
+        "width": "6",
+        "height": "6",
+        "gtype": "donut",
+        "title": "Ocupação (%)",
+        "label": "%",
+        "format": "{{msg.payload.percentual}}",
+        "min": 0,
+        "max": 100,
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": 50,
+        "seg2": 80,
+        "className": "",
+        "x": 940,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "b77be09c20e18264",
+        "type": "ui_text",
+        "z": "983aca1b753bdb66",
+        "name": "Distância da Tampa",
+        "group": "abf82d7d.3c0a7",
+        "order": 2,
+        "width": "6",
+        "height": "2",
+        "label": "Distância até a Tampa (máx {{msg.payload.distanciaMax}} cm):",
+        "format": "{{msg.payload.distancia_cm}} cm",
+        "layout": "row-spread",
+        "className": "",
+        "x": 960,
+        "y": 200,
+        "wires": []
     },
     {
         "id": "d40b877ba6839e54",
@@ -216,7 +163,7 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 660,
+        "x": 900,
         "y": 80,
         "wires": []
     },
